@@ -1,49 +1,8 @@
-# Pre-commit konfigūracijos failas, skirtas kodų stiliaus ir kokybės taisyklėms automatizuoti
 repos:
-  # Standartiniai pre-commit įrankiai
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.6.0
     hooks:
-      # Pašalina nereikalingas tarpas eilutėse
       - id: trailing-whitespace
-      # Prideda trūkstamą pabaigos failo eilutę
       - id: end-of-file-fixer
-      # Prideda kodų kodavimo pranešimą, jei jo nėra
-      - id: fix-encoding-pragma
-
-  # Automatiškai formatuoja kodą naudodamas Black
-  - repo: https://github.com/psf/black
-    rev: 23.1.0
-    hooks:
-      - id: black
-        language_version: python3
-
-  # Automatiškai tvarko importus naudodamas isort
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.12.0
-    hooks:
-      - id: isort
-        language_version: python3
-
-  # Kodų analizė naudodama flake8
-  - repo: https://github.com/pre-commit/mirrors-flake8
-    rev: v6.0.0
-    hooks:
-      - id: flake8
-        language_version: python3
-
-  # Statinė kodų analizė naudojant mypy
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.3.0
-    hooks:
-      - id: mypy
-        language_version: python3
-
-  # Kodų analizė naudojant pylint
-  - repo: https://github.com/pre-commit/mirrors-pylint
-    rev: v2.15.1
-    hooks:
-      - id: pylint
-        language_version: python3
-        additional_dependencies:
-          - pylint-django  # Priklauso nuo Django, jei naudojate
+      - id: check-merge-conflict
+      - id: debug-statements
