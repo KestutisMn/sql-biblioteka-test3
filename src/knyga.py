@@ -30,13 +30,13 @@ class Knyga(DBBase):
         CREATE TABLE IF NOT EXISTS {self.table_name} (
             ID SERIAL PRIMARY KEY,
             pavadinimas VARCHAR(255),
-            knygos_autorius INTEGER REFERENCES autorius(ID),
+            knygos_autorius INTEGER REFERENCES autorius(ID) ON DELETE CASCADE,
             knygos_statusas VARCHAR(50),
-            kategorija_id INTEGER REFERENCES knygos_kategorija(ID),
-            knygos_vieta_id INTEGER REFERENCES knygos_vieta(ID),
+            kategorija_id INTEGER REFERENCES knygos_kategorija(ID) ON DELETE CASCADE,
+            knygos_vieta_id INTEGER REFERENCES knygos_vieta(ID) ON DELETE CASCADE,
             knygos_ivedimo_data DATE,
             knygos_pasalinimo_data DATE,
-            UNIQUE (pavadinimas)  -- Uniqueness constraint added
+            UNIQUE (pavadinimas)
         )
         """
         super().create_table(create_query)
@@ -69,3 +69,17 @@ class Knyga(DBBase):
         query = f"SELECT * FROM {self.table_name}"
         self.cursor.execute(query)
         return self.cursor.fetchall()
+
+    def remove_book_by_name(self, pavadinimas):
+        # Pašalinti visus skolinimus, susijusius su knyga
+        delete_borrowing_query = sql.SQL(
+            "DELETE FROM knygu_skolinimai WHERE knyga_id IN (SELECT ID FROM {} WHERE pavadinimas = %s)").format(
+            sql.Identifier(self.table_name))
+        self.cursor.execute(delete_borrowing_query, (pavadinimas,))
+
+        # Pašalinti knygą
+        delete_book_query = sql.SQL("DELETE FROM {} WHERE pavadinimas = %s").format(sql.Identifier(self.table_name))
+        self.cursor.execute(delete_book_query, (pavadinimas,))
+
+        self.connection.commit()
+        print(f"Knyga su pavadinimu '{pavadinimas}' pašalinta.")

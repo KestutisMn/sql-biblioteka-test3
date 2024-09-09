@@ -4,27 +4,12 @@ from psycopg2 import sql
 
 class Lankytojas(DBBase):
     def __init__(self):
-        """
-        Initializes the Lankytojas class, inheriting from DBBase.
-        Sets the table name to 'lankytojas' and defines columns
-        related to visitors, including personal information, contact details,
-        book lists, status, and registration information.
-        """
         super().__init__("lankytojas", (
             'vardas', 'pavarde', 'asmens_kodas', 'telefono_numeris', 'el_pastas',
             'knygu_sarasas', 'lankytojo_statusas', 'registruotas'
         ))
 
     def create_table(self):
-        """
-        Creates the 'lankytojas' table if it does not already exist.
-
-        The table includes columns for visitor's first name (vardas),
-        last name (pavarde), personal code (asmens_kodas), contact details
-        (telefono_numeris and el_pastas), a list of books (knygu_sarasas),
-        visitor status (lankytojo_statusas), and registration status (registruotas).
-        A unique constraint is applied to the personal code to ensure no duplicates.
-        """
         query = f"""
         CREATE TABLE IF NOT EXISTS {self.table_name} (
             ID SERIAL PRIMARY KEY,
@@ -41,13 +26,6 @@ class Lankytojas(DBBase):
         super().create_table(query)
 
     def insert_all_data(self):
-        """
-        Inserts all records from lankytojas_data into the 'lankytojas' table.
-
-        Iterates through lankytojas_data and inserts each visitor's information into the table.
-        If a conflict occurs (e.g., a duplicate personal code), the insertion is skipped
-        for that record.
-        """
         insert_query = sql.SQL("""
         INSERT INTO {table} (vardas, pavarde, asmens_kodas, telefono_numeris, el_pastas, knygu_sarasas, lankytojo_statusas, registruotas)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
@@ -55,5 +33,31 @@ class Lankytojas(DBBase):
         """).format(table=sql.Identifier(self.table_name))
 
         for data in lankytojas_data:
-            self.cursor.execute(insert_query, data)
-        self.connection.commit()  # Commit the transaction
+            try:
+                self.cursor.execute(insert_query, data)
+                self.connection.commit()
+            except Exception as e:
+                print(f"Klaida įdedant duomenis į {self.table_name}: {e}")
+                self.connection.rollback()
+
+    def select_by_code(self, asmens_kodas):
+        query = sql.SQL("SELECT * FROM {} WHERE asmens_kodas = %s").format(
+            sql.Identifier(self.table_name)
+        )
+        self.cursor.execute(query, (asmens_kodas,))
+        return self.cursor.fetchone()
+
+    def print_visitor(self, asmens_kodas):
+        visitor = self.select_by_code(asmens_kodas)
+        if visitor:
+            print(f"Lankytojas:\n"
+                  f"Vardas: {visitor[1]}\n"
+                  f"Pavardė: {visitor[2]}\n"
+                  f"Asmens kodas: {visitor[3]}\n"
+                  f"Telefonas: {visitor[4]}\n"
+                  f"El. paštas: {visitor[5]}\n"
+                  f"Knygų sąrašas: {visitor[6]}\n"
+                  f"Lankytojo statusas: {visitor[7]}\n"
+                  f"Registruotas: {visitor[8]}")
+        else:
+            print("Lankytojas nerastas.")

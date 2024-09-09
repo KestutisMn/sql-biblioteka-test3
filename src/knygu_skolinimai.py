@@ -26,7 +26,7 @@ class KnyguSkolinimai(DBBase):
         create_query = f"""
         CREATE TABLE IF NOT EXISTS {self.table_name} (
             ID SERIAL PRIMARY KEY,
-            knyga_id INTEGER REFERENCES knyga(ID),
+            knyga_id INTEGER REFERENCES knyga(ID) ON DELETE CASCADE
             lankytojas_id INTEGER REFERENCES lankytojas(ID),
             paemimo_data DATE,
             grazinimo_data DATE,
@@ -37,13 +37,6 @@ class KnyguSkolinimai(DBBase):
         super().create_table(create_query)
 
     def insert_all_data(self):
-        """
-        Inserts all records from knygu_skolinimai_data into the 'knygu_skolinimai' table.
-
-        Iterates through knygu_skolinimai_data and inserts each record into the table.
-        If a conflict occurs (e.g., a duplicate book-visitor pair), the existing record
-        is updated with the new late fees value.
-        """
         insert_query = sql.SQL("""
         INSERT INTO {table} (knyga_id, lankytojas_id, paemimo_data, grazinimo_data, delspinigiai)
         VALUES (%s, %s, %s, %s, %s)
@@ -53,7 +46,7 @@ class KnyguSkolinimai(DBBase):
 
         for data in knygu_skolinimai_data:
             self.cursor.execute(insert_query, data)
-        self.connection.commit()  # Commit the transaction
+        self.connection.commit()
 
     def select_all(self):
         """
