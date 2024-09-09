@@ -72,14 +72,24 @@ class Knyga(DBBase):
 
     def remove_book_by_name(self, pavadinimas):
         # Pašalinti visus skolinimus, susijusius su knyga
-        delete_borrowing_query = sql.SQL(
-            "DELETE FROM knygu_skolinimai WHERE knyga_id IN (SELECT ID FROM {} WHERE pavadinimas = %s)").format(
-            sql.Identifier(self.table_name))
-        self.cursor.execute(delete_borrowing_query, (pavadinimas,))
+        # delete_borrowing_query = sql.SQL(
+        #     "DELETE FROM knygu_skolinimai WHERE knyga_id IN (SELECT ID FROM {} WHERE pavadinimas = %s)").format(
+        #     sql.Identifier(self.table_name))
+        # self.cursor.execute(delete_borrowing_query, (pavadinimas,))
 
         # Pašalinti knygą
-        delete_book_query = sql.SQL("DELETE FROM {} WHERE pavadinimas = %s").format(sql.Identifier(self.table_name))
-        self.cursor.execute(delete_book_query, (pavadinimas,))
+        def remove_book_by_name(self, pavadinimas):
+            # Paimame knygos ID pagal pavadinimą
+            select_book_query = sql.SQL("SELECT ID FROM {} WHERE pavadinimas = %s").format(
+                sql.Identifier(self.table_name))
+            self.cursor.execute(select_book_query, (pavadinimas,))
+            book_id = self.cursor.fetchone()
 
-        self.connection.commit()
-        print(f"Knyga su pavadinimu '{pavadinimas}' pašalinta.")
+            if book_id:
+                # Pašaliname knygą pagal ID
+                delete_book_query = sql.SQL("DELETE FROM {} WHERE id = %s").format(sql.Identifier(self.table_name))
+                self.cursor.execute(delete_book_query, (book_id,))
+                self.connection.commit()
+                print(f"Knyga su pavadinimu '{pavadinimas}' pašalinta.")
+            else:
+                print(f"Knyga su pavadinimu '{pavadinimas}' nerasta.")

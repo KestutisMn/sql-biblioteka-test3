@@ -60,3 +60,5 @@ python main.py
 
 To install dependencies, use:
 pip install psycopg2-binary python-dotenv
+
+![SQL BIBLIOTEKA 240812.drawio.png](diagrams%2FSQL%20BIBLIOTEKA%20240812.drawio.png)

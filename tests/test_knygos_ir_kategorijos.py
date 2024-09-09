@@ -1,5 +1,5 @@
 import pytest
-from knygos_ir_kategorijos import KnygosIrKategorijos
+from src.knygos_ir_kategorijos import KnygosIrKategorijos
 
 @pytest.fixture
 def knygos_ir_kategorijos():

@@ -1,5 +1,5 @@
 from src.db_base import DBBase
-from src.pradine_info import autorius_data
+from pradine_info import autorius_data
 from psycopg2 import sql
 
 class Autorius(DBBase):

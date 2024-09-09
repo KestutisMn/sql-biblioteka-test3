@@ -1,14 +1,17 @@
 import pytest
-from knygos_kategorija import KnygosKategorija
+from src.knygos_kategorija import KnygosKategorija
 
 @pytest.fixture
 def knygos_kategorija():
-    with KnygosKategorija() as instance:
-        instance.create_table()
-        yield instance
+    instance = KnygosKategorija()
+    instance.create_table()
+    yield instance
+    # Clean up after tests
+    instance.drop_table()
 
 def test_insert_and_select(knygos_kategorija):
     knygos_kategorija.insert_all_data()
     results = knygos_kategorija.select_all()
     assert len(results) == 5  # Check number of inserted categories
-    assert ('Fantasy',) in results
+    # Check if 'Fantasy' is among the results
+    assert any(record[1] == 'Fantasy' for record in results)

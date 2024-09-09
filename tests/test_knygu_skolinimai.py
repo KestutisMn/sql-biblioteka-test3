@@ -1,5 +1,5 @@
 import pytest
-from knygu_skolinimai import KnyguSkolinimai
+from src.knygu_skolinimai import KnyguSkolinimai
 
 @pytest.fixture
 def knygu_skolinimai():
